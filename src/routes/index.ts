@@ -1,5 +1,6 @@
 import { Router } from 'express';
-import authRoutes from './auth.routes'
+import authRoutes from './auth.routes';
+import repositoryRoutes from './repository.routes';
 
 const router = Router();
 
@@ -17,6 +18,7 @@ const router = Router();
 
 // Mount route modules
 router.use('/auth', authRoutes);
+router.use('/repositories', repositoryRoutes);
 
 // Root endpoint
 router.get('/', (_req, res) => {
@@ -33,6 +35,12 @@ router.get('/', (_req, res) => {
         getKey: 'GET /api/v1/auth/keys/:id',
         revokeKey: 'POST /api/v1/auth/keys/:id/revoke',
         deleteKey: 'DELETE /api/v1/auth/keys/:id',
+      },
+      repositories: {
+        register: 'POST /api/v1/repositories',
+        list: 'GET /api/v1/repositories',
+        get: 'GET /api/v1/repositories/:id',
+        delete: 'DELETE /api/v1/repositories/:id',
       },
     },
   });

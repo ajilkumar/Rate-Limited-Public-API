@@ -19,6 +19,36 @@ export enum RepositoryStatus {
   FAILED = 'failed',
 }
 
+export interface Repository {
+  id: string;
+  apiKeyId: string;
+  githubUrl: string;
+  owner: string;
+  repoName: string;
+  defaultBranch: string;
+  lastAnalyzedAt: Date | null;
+  analysisStatus: RepositoryStatus;
+  errorMessage: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  metadata: Record<string, unknown>;
+}
+
+export interface RegisterRepositoryDto {
+  github_url: string;
+  webhook_url?: string;
+}
+
+export interface RepositoryResponse {
+  id: string;
+  githubUrl: string;
+  owner: string;
+  repoName: string;
+  status: RepositoryStatus;
+  lastAnalyzedAt: string | null;
+  createdAt: string;
+}
+
 /**
  * Database Models
  */
@@ -36,18 +66,19 @@ export interface ApiKey {
   metadata: Record<string, unknown>;
 }
 
-export interface Repository {
+
+export interface RepositoryRow {
   id: string;
-  apiKeyId: string;
-  githubUrl: string;
+  api_key_id: string;
+  github_url: string;
   owner: string;
-  repoName: string;
-  defaultBranch: string;
-  lastAnalyzedAt: Date | null;
-  analysisStatus: RepositoryStatus;
-  errorMessage: string | null;
-  createdAt: Date;
-  updatedAt: Date;
+  repo_name: string;
+  default_branch: string;
+  last_analyzed_at: Date | null;
+  analysis_status: RepositoryStatus;
+  error_message: string | null;
+  created_at: Date;
+  updated_at: Date;
   metadata: Record<string, unknown>;
 }
 
@@ -109,20 +140,9 @@ export interface RegisterApiKeyResponse {
   message: string;
 }
 
-export interface RegisterRepositoryDto {
-  githubUrl: string;
-  webhookUrl?: string;
-}
 
-export interface RepositoryResponse {
-  id: string;
-  githubUrl: string;
-  owner: string;
-  repoName: string;
-  status: RepositoryStatus;
-  lastAnalyzedAt: string | null;
-  createdAt: string;
-}
+
+
 
 /**
  * Rate Limiting
