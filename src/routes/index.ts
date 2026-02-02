@@ -42,6 +42,12 @@ router.get('/', (_req, res) => {
         get: 'GET /api/v1/repositories/:id',
         delete: 'DELETE /api/v1/repositories/:id',
       },
+      metrics: {
+        summary: 'GET /api/v1/repositories/:id/metrics/summary',
+        commits: 'GET /api/v1/repositories/:id/metrics/commits',
+        contributors: 'GET /api/v1/repositories/:id/metrics/contributors',
+        activity: 'GET /api/v1/repositories/:id/metrics/activity',
+      },
     },
   });
 });
