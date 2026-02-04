@@ -2,12 +2,6 @@ import type { Config } from 'jest';
 
 const config: Config = {
   preset: 'ts-jest',
-  
-  globals: {
-  'ts-jest': {
-    tsconfig: 'tsconfig.test.json',
-  },
-},
   testEnvironment: 'node',
 
   roots: ['<rootDir>/tests'],
@@ -15,7 +9,9 @@ const config: Config = {
   testMatch: ['**/tests/unit/**/*.test.ts'],
 
   transform: {
-    '^.+\\.ts$': 'ts-jest',
+    '^.+\\.ts$': ['ts-jest', {
+      tsconfig: 'tsconfig.test.json',
+    }],
   },
 
   transformIgnorePatterns: [
@@ -56,6 +52,11 @@ const config: Config = {
 
   testTimeout: 30000,
   verbose: true,
+
+  // Worker process configuration
+  maxWorkers: 1, // Run tests serially to avoid connection pool issues
+  forceExit: true, // Force exit after tests complete
+  detectOpenHandles: true, // Help identify what's keeping the process alive
 };
 
 export default config;

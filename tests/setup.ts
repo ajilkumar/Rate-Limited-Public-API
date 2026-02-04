@@ -26,10 +26,19 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  // Close connections
-  await testPool.end();
-  await testRedis.quit();
-});
+  // Close connections with proper error handling
+  try {
+    await testPool.end();
+  } catch (error) {
+    console.error('Error closing test pool:', error);
+  }
+  
+  try {
+    await testRedis.quit();
+  } catch (error) {
+    console.error('Error closing Redis:', error);
+  }
+}, 10000); // Increase timeout for cleanup
 
 // Clean database before each test
 beforeEach(async () => {

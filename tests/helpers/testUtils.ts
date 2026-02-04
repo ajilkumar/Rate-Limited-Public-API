@@ -1,22 +1,25 @@
-jest.mock('@faker-js/faker');
-
-import { faker } from '@faker-js/faker';
+import { testPool, testRedis } from '../setup';
 import { hashApiKey, generateApiKey } from '../../src/utils/apiKeyGenerator';
 import { ApiKeyTier } from '../../src/types';
-import { testPool, testRedis } from '../setup';
 
+// Simple counter for generating unique test data
+let testCounter = 0;
 
 /**
  * Create test API key
  */
-export async function createTestApiKey(options: {
-  email?: string;
-  tier?: ApiKeyTier;
-  name?: string;
-  isActive?: boolean;
-} = {}) {
+export async function createTestApiKey(
+  options: {
+    email?: string;
+    tier?: ApiKeyTier;
+    name?: string;
+    isActive?: boolean;
+  } = {}
+) {
+  testCounter++;
+
   const {
-    email = faker.internet.email(),
+    email = `test${testCounter}@example.com`,
     tier = ApiKeyTier.FREE,
     name = 'Test Key',
     isActive = true,
@@ -41,6 +44,7 @@ export async function createTestApiKey(options: {
 
   return {
     ...result.rows[0],
+    email: result.rows[0].user_email, // 👈 ADD THIS
     rawKey, // Return raw key for testing
   };
 }
@@ -48,18 +52,25 @@ export async function createTestApiKey(options: {
 /**
  * Create test repository
  */
-export async function createTestRepository(apiKeyId: string, options: {
-  owner?: string;
-  repoName?: string;
-  githubUrl?: string;
-  status?: string;
-} = {}) {
+export async function createTestRepository(
+  apiKeyId: string,
+  options: {
+    owner?: string;
+    repoName?: string;
+    githubUrl?: string;
+    status?: string;
+  } = {}
+) {
+  testCounter++;
+
   const {
-    owner = faker.internet.username(),
-    repoName = faker.lorem.slug(),
-    githubUrl = `https://github.com/${owner}/${repoName}`,
+    owner = `testowner${testCounter}`,
+    repoName = `testrepo${testCounter}`,
+    githubUrl,
     status = 'pending',
   } = options;
+
+  const url = githubUrl || `https://github.com/${owner}/${repoName}`;
 
   const result = await testPool.query(
     `
@@ -69,7 +80,7 @@ export async function createTestRepository(apiKeyId: string, options: {
     VALUES ($1, $2, $3, $4, $5)
     RETURNING *
     `,
-    [apiKeyId, githubUrl, owner, repoName, status]
+    [apiKeyId, url, owner, repoName, status]
   );
 
   return result.rows[0];
@@ -93,13 +104,13 @@ export async function createTestCommits(repositoryId: string, count: number = 10
       `,
       [
         repositoryId,
-        faker.git.commitSha(),
-        faker.person.fullName(),
-        faker.internet.email(),
-        faker.date.recent({ days: 30 }),
-        faker.number.int({ min: 1, max: 10 }),
-        faker.number.int({ min: 10, max: 500 }),
-        faker.number.int({ min: 5, max: 200 }),
+        `sha${Date.now()}${i}${Math.random().toString(36).substring(7)}`,
+        `Test Author ${i}`,
+        `author${i}@example.com`,
+        new Date(Date.now() - i * 24 * 60 * 60 * 1000), // i days ago
+        Math.floor(Math.random() * 10) + 1,
+        Math.floor(Math.random() * 500) + 10,
+        Math.floor(Math.random() * 200) + 5,
       ]
     );
 
@@ -130,8 +141,8 @@ export async function createTestUsageLogs(apiKeyId: string, count: number = 5) {
         '/api/v1/auth/me',
         'GET',
         200,
-        faker.number.int({ min: 10, max: 500 }),
-        faker.date.recent({ days: 7 }),
+        Math.floor(Math.random() * 500) + 10,
+        new Date(Date.now() - i * 60 * 60 * 1000), // i hours ago
       ]
     );
 
@@ -151,7 +162,7 @@ export async function simulateRateLimitUsage(apiKeyId: string, requestCount: num
   for (let i = 0; i < requestCount; i++) {
     await testRedis.zAdd(key, {
       score: now - i * 1000, // 1 second apart
-      value: faker.string.uuid(),
+      value: `request-${Date.now()}-${i}-${Math.random()}`,
     });
   }
 
@@ -169,6 +180,8 @@ export async function waitFor(ms: number) {
  * Clean all test data
  */
 export async function cleanDatabase() {
-  await testPool.query('TRUNCATE api_usage, file_complexity, commit_metrics, repositories, api_keys CASCADE');
+  await testPool.query(
+    'TRUNCATE api_usage, file_complexity, commit_metrics, repositories, api_keys CASCADE'
+  );
   await testRedis.flushDb();
 }
