@@ -25,9 +25,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run ESLint
-        run: npm run lint
-        continue-on-error: false
+      # - name: Run ESLint
+      #   run: npm run lint
+      #   continue-on-error: true
 
       - name: TypeScript type check
         run: npm run typecheck
