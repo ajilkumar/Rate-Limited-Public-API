@@ -2,7 +2,7 @@ import { registerApiKey, validateApiKey, listApiKeys, revokeApiKey } from '../..
 import { cleanDatabase, createTestApiKey } from '../../helpers/testUtils';
 import { ApiKeyTier } from '../../../src/types';
 import { ConflictError, NotFoundError, AuthenticationError } from '../../../src/utils/errors';
-import { hashApiKey } from '../../../src/utils/apiKeyGenerator';
+// import { hashApiKey } from '../../../src/utils/apiKeyGenerator';
 
 describe('Auth Service', () => {
   beforeEach(async () => {
