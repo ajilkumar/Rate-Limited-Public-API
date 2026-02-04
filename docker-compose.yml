@@ -40,7 +40,48 @@ services:
     networks:
       - devmetrics-network
 
-  # pgAdmin (Optional - for database management UI)
+# RedisInsight (Optional - for Redis management UI)
+  redisinsight:
+    image: redis/redisinsight:latest
+    container_name: devmetrics-redisinsight
+    restart: unless-stopped
+    ports:
+    - "5540:5540"
+    networks:
+    - devmetrics-network
+    profiles:
+    - tools
+
+  # Test PostgreSQL
+  postgres-test:
+    image: postgres:16-alpine
+    container_name: devmetrics-postgres-test
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: devmetrics
+      POSTGRES_PASSWORD: devmetrics_password
+      POSTGRES_DB: devmetrics_test
+    ports:
+      - "5433:5432"
+    networks:
+      - devmetrics-network
+    profiles:
+      - test
+
+  # Test Redis
+  redis-test:
+    image: redis:7-alpine
+    container_name: devmetrics-redis-test
+    restart: unless-stopped
+    ports:
+      - "6380:6379"
+    command: redis-server --appendonly no
+    networks:
+      - devmetrics-network
+    profiles:
+      - test
+
+# pgAdmin (Optional - for database management UI)
   # pgadmin:
   #   image: dpage/pgadmin4:latest
   #   container_name: devmetrics-pgadmin
@@ -57,18 +98,6 @@ services:
   #     - devmetrics-network
   #   profiles:
   #     - tools  # Only start with: docker-compose --profile tools up
-
-# RedisInsight (Optional - for Redis management UI)
-  redisinsight:
-    image: redis/redisinsight:latest
-    container_name: devmetrics-redisinsight
-    restart: unless-stopped
-    ports:
-    - "5540:5540"
-    networks:
-    - devmetrics-network
-    profiles:
-    - tools
 
 
 volumes:
