@@ -96,6 +96,10 @@ dist
 .temp
 .cache
 
+# Docker
+docker-data/
+*.log
+
 # Sveltekit cache directory
 .svelte-kit/
 
